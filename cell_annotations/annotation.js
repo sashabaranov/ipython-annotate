@@ -2,25 +2,64 @@ var annotation_extension = (function() {
 
     executed = false;
 
-    saveComment = (function(id, cell) {
-            comment = document.getElementById("textBox" + id).value;
+    saveComment = (function(cell, inId, outId) {
+
+            var cookies = undefined;
+            console.log('saving started');
+            try {
+                cookies = JSON.parse(document.cookie);
+            }
+            catch(err) {
+
+                cookies = {};
+
+                if(IPython.notebook.metadata['users'] == undefined) {
+                    cookies['username'] = window.prompt("Enter your name:");
+                    IPython.notebook.metadata['users'] = [cookies['username']];
+                } else {
+
+                    var username = undefined;
+                    var userAlreadyExisted = true;
+
+                    while (userAlreadyExisted) {
+                        username = window.prompt("Enter your name:");
+                        var userList = IPython.notebook.metadata['users'];
+
+                        userAlreadyExisted = false;
+                        for (var i in userList) {
+                            if (username == userList[i]) {
+                                userAlreadyExisted = true;
+                                window.alert("This username busy. Try another");
+                                break;
+                            }
+                        }
+                    }
+                    cookies['username'] = username;
+                    cookies['registration_date'] = Date();
+                    document.cookie = JSON.stringify(cookies);
+                    IPython.notebook.metadata['users'].push(username);
+                }
+            }
+
+            var username = cookies['username'];
+            var comment = $('#' + inId).val();
+            var item = [username, comment, Date()];
+
             if (cell.metadata['comments'] == undefined) {
-                cell.metadata['comments'] = [comment];
-
-            }
-            else
-            {
-                cell.metadata['comments'].push(comment);
+                cell.metadata['comments'] = [item];
+            } else {
+                cell.metadata['comments'].push(item);
             }
 
-            var para = document.createElement("p");
-            var node = document.createTextNode(comment);
-            var prompt = document.createTextNode('> ');
-            para.appendChild(prompt);
-            para.appendChild(node);
-            ourCommentBox = document.getElementById("oldCommentsBox" + id);
-            ourCommentBox.appendChild(para);
-            console.log("saving completed!");
+            IPython.notebook.save_checkpoint();
+            console.log("comment saved");
+            printComment(username, comment, outId);
+        }
+    )
+
+    printComment = (function(username, comment, outId) {
+            newLine = $("<p>").text('> ' + username + ': ' + comment);
+            $("#"+ outId).append(newLine);
         }
     )
 
@@ -50,11 +89,11 @@ var annotation_extension = (function() {
                 saveButton.style.height = "40px";
                 saveButton.style.width = "80px";
                 
-                saveButton.addEventListener('click', (function(id, target_cell) {
+                saveButton.addEventListener('click', (function(target_cell, id) {
                     return function(){
-                        saveComment(id, target_cell);
+                        saveComment(target_cell, "textBox" + id, "oldCommentsBox" + id);
                     };
-                })(id, target_cell)
+                })(target_cell, id)
                 );
 
                 oldCommentsBox = document.createElement('div');
@@ -117,7 +156,7 @@ var annotation_extension = (function() {
                     {
                         var para = document.createElement("p");
                         var prompt = document.createTextNode('> ');
-                        var node = document.createTextNode(archivedComments[j]);
+                        var node = document.createTextNode(archivedComments[j][0] + ': ' + archivedComments[j][1]);
                         para.appendChild(prompt);
                         para.appendChild(node);
                         oldCommentsBox.appendChild(para);
