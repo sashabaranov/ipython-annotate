@@ -7,7 +7,6 @@ var saveComment = (function(cell, inId, outId) {
         }
         catch(err) {
             cookies = {};
-
             if(IPython.notebook.metadata['users'] == undefined) {
                 cookies['username'] = window.prompt("Enter your name:");
                 IPython.notebook.metadata['users'] = [cookies['username']];
