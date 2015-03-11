@@ -5,9 +5,12 @@ var annotation_extension = (function() {
     saveComment = (function(cell, inId, outId) {
 
             var cookies = undefined;
-            console.log('saving started');
+
             try {
                 cookies = JSON.parse(document.cookie);
+                if (cookies['username'] == undefined) {
+                    throw "Invalid cookie";
+                }
             }
             catch(err) {
 

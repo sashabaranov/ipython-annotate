@@ -4,6 +4,9 @@ var saveComment = (function(cell, inId, outId) {
 
         try {
             cookies = JSON.parse(document.cookie);
+            if (cookies['username'] == undefined) {
+                throw "Invalid cookie";
+            }
         }
         catch(err) {
             cookies = {};
