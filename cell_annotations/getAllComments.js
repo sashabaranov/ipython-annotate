@@ -1,6 +1,6 @@
 var getAllComments = (function(cellIndex) {
 
-        var cell = IPython.notebook.get_cell(cellIndex);\
+        var cell = IPython.notebook.get_cell(cellIndex);
 
         if (cell != null) {
             return cell.metadata.comments;
