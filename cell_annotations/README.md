@@ -4,6 +4,12 @@
 > * `cellIndex` - индекс ячейки, в метаданные которой будет сохранен комментарий
 > * `comment` - комментарий
 
+####saveCommentJupyterHub.js
+
+> Содержит `saveCommentJupyterHub(cellIndex, comment)` - попытка написания функции созранения комментариев в JupyterHub, где
+> * `cellIndex` - индекс ячейки, в метаданные которой будет сохранен комментарий
+> * `comment` - комментарий
+
 ####getAllComments.js
 > Содержит `getAllComments(cellIndex)` - функция, возвращающая все комментарии к ячейке
 
