@@ -1,5 +1,6 @@
-var saveComment = (function(cell, inId, outId) {
+var saveComment = (function(cellIndex, comment) {
 
+        console.log("start saving");
         var cookies = undefined;
 
         try {
@@ -40,8 +41,9 @@ var saveComment = (function(cell, inId, outId) {
         }
 
         var username = cookies['username'];
-        var comment = $('#' + inId).val();
-        var item = [username, comment, Date()];
+        var item = {"username":username, "comment":comment, "date":Date()};
+
+        cell = IPython.notebook.get_cell(cellIndex);
 
         if (cell.metadata['comments'] == undefined) {
             cell.metadata['comments'] = [item];
@@ -52,15 +54,6 @@ var saveComment = (function(cell, inId, outId) {
         // Saves current session in IPython. 
         // So if we reload our page without pressing save button we will not lose our comment.
         IPython.notebook.save_checkpoint();
-
-        // Function you have to implement
-        printComment(username, comment, outId);
+        console.log("comment saved");
     }
-)
-
-// printComment() function implementation example
-var printComment = (function(username, comment, outId) {
-        newLine = $("<p>").text('> ' + username + ': ' + comment);
-        $("#"+ outId).append(newLine);
-    }
-)
+);
