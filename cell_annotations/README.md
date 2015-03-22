@@ -1,17 +1,17 @@
 ####saveComment.js
 
-> Содержит `saveComment(cellIndex, comment)` - функция сохранения комментариев, где
-> * `cellIndex` - индекс ячейки, в метаданные которой будет сохранен комментарий
+> Содержит `saveComment(cell, comment)` - функция сохранения комментариев, где
+> * `cell` - ячейка, в метаданные которой будет сохранен комментарий
 > * `comment` - комментарий
 
 ####saveCommentJupyterHub.js
 
-> Содержит `saveCommentJupyterHub(cellIndex, comment)` - попытка написания функции созранения комментариев в JupyterHub, где
-> * `cellIndex` - индекс ячейки, в метаданные которой будет сохранен комментарий
+> Содержит `saveCommentJupyterHub(cell, comment)` - попытка написания функции созранения комментариев в JupyterHub, где
+> * `cell` - индекс ячейка, в метаданные которой будет сохранен комментарий
 > * `comment` - комментарий
 
 ####getAllComments.js
-> Содержит `getAllComments(cellIndex)` - функция, возвращающая все комментарии к ячейке
+> Содержит `getAllComments(cell)` - функция, возвращающая все комментарии к ячейке
 
 ####annotation.js
 
