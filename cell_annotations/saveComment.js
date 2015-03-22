@@ -1,4 +1,4 @@
-var saveComment = (function(cellIndex, comment) {
+var saveComment = (function(cell, comment) {
 
         console.log("start saving");
         var cookies = undefined;
@@ -42,8 +42,6 @@ var saveComment = (function(cellIndex, comment) {
 
         var username = cookies['username'];
         var item = {"username":username, "comment":comment, "date":Date()};
-
-        cell = IPython.notebook.get_cell(cellIndex);
 
         if (cell.metadata['comments'] == undefined) {
             cell.metadata['comments'] = [item];

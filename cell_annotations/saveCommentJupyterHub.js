@@ -1,5 +1,6 @@
-var saveCommentJupyterHub = (function(cellIndex, comment) {
+var saveCommentJupyterHub = (function(cell, comment) {
 
+        console.log("start saving");
         var cookie = document.cookie;
         var cookie_length = cookie.length;
 
@@ -15,6 +16,7 @@ var saveCommentJupyterHub = (function(cellIndex, comment) {
                 break;
             }
         }
+        console.log("username: ", username);
 
         var users = IPython.notebook.metadata.users;
         if (users == undefined) {
@@ -22,8 +24,9 @@ var saveCommentJupyterHub = (function(cellIndex, comment) {
         }
         users[username] = true;
 
+        console.log(users);
+
         var item = {"username":username, "comment":comment, "date":Date()};
-        cell = IPython.notebook.get_cell(cellIndex);
 
         if (cell.metadata['comments'] == undefined) {
             cell.metadata['comments'] = [item];

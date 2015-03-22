@@ -1,11 +1,9 @@
-var getAllComments = (function(cellIndex) {
-
-        var cell = IPython.notebook.get_cell(cellIndex);
+var getAllComments = (function(cell) {
 
         if (cell != null) {
             return cell.metadata.comments;
         } else {
-            throw "getAllComments: Invalid cell index!"
+            throw "getAllComments: Invalid cell!"
         }
     }
 );
