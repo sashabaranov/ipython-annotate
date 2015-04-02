@@ -1,186 +1,127 @@
-var annotation_extension = (function() {
+require([
+    'custom/commentapi', 
+    'custom/authorization'
+], function (commentapi, authorization) {
 
-    executed = false;
+    "use strict";
 
-    saveComment = (function(cell, inId, outId) {
+    var flag_name = 'comment';
+    var counter = 0; 
 
-            var cookies = undefined;
-
-            try {
-                cookies = JSON.parse(document.cookie);
-                if (cookies['username'] == undefined) {
-                    throw "Invalid cookie";
-                }
-            }
-            catch(err) {
-
-                cookies = {};
-
-                if(IPython.notebook.metadata['users'] == undefined) {
-                    cookies['username'] = window.prompt("Enter your name:");
-                    IPython.notebook.metadata['users'] = [cookies['username']];
-                } else {
-
-                    var username = undefined;
-                    var userAlreadyExisted = true;
-
-                    while (userAlreadyExisted) {
-                        username = window.prompt("Enter your name:");
-                        var userList = IPython.notebook.metadata['users'];
-
-                        userAlreadyExisted = false;
-                        for (var i in userList) {
-                            if (username == userList[i]) {
-                                userAlreadyExisted = true;
-                                window.alert("This username busy. Try another");
-                                break;
-                            }
-                        }
-                    }
-                    cookies['username'] = username;
-                    cookies['registration_date'] = Date();
-                    document.cookie = JSON.stringify(cookies);
-                    IPython.notebook.metadata['users'].push(username);
-                }
-            }
-
-            var username = cookies['username'];
-            var comment = $('#' + inId).val();
-            var item = [username, comment, Date()];
-
-            if (cell.metadata['comments'] == undefined) {
-                cell.metadata['comments'] = [item];
-            } else {
-                cell.metadata['comments'].push(item);
-            }
-
-            IPython.notebook.save_checkpoint();
-            console.log("comment saved");
-            printComment(username, comment, outId);
-        }
-    )
-
-    printComment = (function(username, comment, outId) {
-            newLine = $("<p>").text('> ' + username + ': ' + comment);
-            $("#"+ outId).append(newLine);
-        }
-    )
-
-    toggleLog = (function(id) {
-        $("#oldCommentsBox" + id).toggle();
-        }
-    )
-
-    showAnnotationPanel = function () {
-        if (!executed) {
-
-            var cells = IPython.notebook.get_cells();
-
-            for (var id = 0; id < cells.length; id++) {
-                target_cell = cells[id];
-                
-                var textBox = document.createElement('textarea');
-                textBox.id = "textBox" + id;
-                console.log(textBox.name);
-                textBox.placeholder = "comment here";
-                textBox.style.width = "330px";
-                textBox.style.heigth = "200px";
-
-                var saveButton = document.createElement('input');
-                saveButton.type = "button";
-                saveButton.value = "save";
-                saveButton.style.height = "40px";
-                saveButton.style.width = "80px";
-                
-                saveButton.addEventListener('click', (function(target_cell, id) {
-                    return function(){
-                        saveComment(target_cell, "textBox" + id, "oldCommentsBox" + id);
-                    };
-                })(target_cell, id)
-                );
-
-                oldCommentsBox = document.createElement('div');
-                oldCommentsBox.id = "oldCommentsBox" + id;
-                oldCommentsBox.style.backgroundColor = "#E6E6E6";
-                oldCommentsBox.style.padding = "20px";
-                oldCommentsBox.textAlign = "left";
-                oldCommentsBox.style.height = "auto";
-                oldCommentsBox.style.width = "300px";
-
-                toggleButton = document.createElement('input');
-                toggleButton.type = "button";
-                toggleButton.style.height = "40px";
-                toggleButton.style.width = "80px";
-                toggleButton.value = "show/hide";
-                toggleButton.id = "toggleButton" + id;
-                toggleButton.addEventListener('click', (function(id) {
-                    return function(){
-                        toggleLog(id);
-                    };
-                })(id)
-                );
-
-                annotationPanel = document.createElement('table');
-                annotationPanel.id = "annotationPanel" + id;
-                annotationPanel.style.height = "auto";
-                annotationPanel.style.width = "auto";
-                annotationPanel.style.align = "center";
-
-                row1 = annotationPanel.insertRow(0);
-                row2 = annotationPanel.insertRow(1);
-                row3 = annotationPanel.insertRow(2);
-                row4 = annotationPanel.insertRow(3);
-
-
-                text_box = row1.insertCell(0);
-                text_box.style.padding = "15px";
-                text_box.style.margin = "20px 10px 10px 20px";
-                text_box.appendChild(textBox);
-
-                save_button = row2.insertCell(0);
-                save_button.appendChild(saveButton);
-                save_button.style.padding = "15px";
-
-                toggle_button = row3.insertCell(0);
-                toggle_button.appendChild(toggleButton);
-                toggle_button.style.padding = "15px";
-                
-                comments_log = row4.insertCell(0);
-                comments_log.appendChild(oldCommentsBox);
-                comments_log.style.padding = "15px";
-                comments_log.style.margin = "20px 10px 10px 20px";
-
-                $('.cell:nth('+id+')').append(annotationPanel);
-
-                if (cells[id].metadata.comments != undefined)
-                {
-                    var archivedComments = cells[id].metadata.comments;
-                    for (var j in archivedComments)
-                    {
-                        var para = document.createElement("p");
-                        var prompt = document.createTextNode('> ');
-                        var node = document.createTextNode(archivedComments[j][0] + ': ' + archivedComments[j][1]);
-                        para.appendChild(prompt);
-                        para.appendChild(node);
-                        oldCommentsBox.appendChild(para);
-                    }
-                }
-            }
-
-            executed = true;
-        }
-        else 
-        {
-            console.log("Double envoke!");
-        }
+    function generate_id() {
+        return 'comment_dialog_' + counter++;
     };
 
-    IPython.toolbar.add_buttons_group([
-        {
-            id : "annotation_panel",
-            label : "show annotation boxes",
-            icon : "icon-comment",
-            callback: showAnnotationPanel
+    function new_comment_element(cell) {
+        var comment_id = generate_id();
+        cell.comment_id = comment_id;
+        var $dialog = $('<div/>', {id: comment_id, title: 'Comment'});
+        var $comment_box = $('<div/>', {class: 'comment_box'});
+        var $textarea = $('<textarea/>', {type: 'text', placeholder: 'add comment', class: 'edited_comment'});
+        var $button = $('<button/>', {class: 'send_comment', html: 'Send'});
+        append_old_comments(cell, $comment_box);
+        $textarea.appendTo($comment_box);
+        $comment_box.appendTo($dialog);
+        $button.appendTo($dialog);
+        return $dialog;
+    }
+
+    function append_old_comments(cell, $comment_box) {
+        var old_comments = commentapi.get_all_comments(cell);
+        if (!old_comments)
+            return;
+        for (var i = 0; i < old_comments.length; ++i) {
+            var comment = old_comments[i];
+            var text = comment.comment;
+            var $comment = $('<p/>', {html: text});
+            $comment_box.append($comment);
         }
-    ]);
-})();
+    }
+
+    function new_comment_qtip_options(cell, $dialog) {
+        return {
+            content: {
+                text: $dialog,
+                title: 'Comment',
+                button: 'Close'
+            },
+            style: {
+                classes: 'qtip-bootstrap'
+            },
+            hide: false,
+            position: {
+                my: 'center right',
+                at: 'center right',
+                target: cell.element,
+                adjust: {
+                    mouse: false
+                }
+
+            },
+            show: {
+                ready: true,
+                event: false
+            }
+        };
+    }
+
+    function add_new_comment_events(cell) {
+        IPython.keyboard_manager.edit_mode();
+        $('body').on('click', '#' + cell.comment_id + ' .send_comment', function () {
+            print_last_comment(cell);
+        });
+
+    }
+
+    function send_comment_dialog(cell) {
+        var $dialog = new_comment_element(cell);
+        cell.element.qtip(new_comment_qtip_options(cell, $dialog));
+        add_new_comment_events(cell);
+    }
+
+
+    function print_last_comment(cell) {
+        var $last_comment = $('#' + cell.comment_id + ' .edited_comment');
+        var text = $last_comment.val();
+        commentapi.save_comment(cell, username, text);
+        var $saved_comment = $('<p/>', {html: text});
+        $last_comment.before($saved_comment);
+        $last_comment.val("");
+    };
+
+
+    function show_comment_dialog(cell) {
+        if (cell.comment_id == undefined) {
+            send_comment_dialog(cell);
+        } else {
+            cell.element.qtip("show");
+        }
+
+    };
+
+    function hide_comment_dialog(cell) {
+        if (cell.comment_id != undefined) {
+            cell.element.qtip("hide");
+        }
+
+    };
+
+    var cell_flag_init = IPython.CellToolbar.utils.checkbox_ui_generator(
+        flag_name,
+        function (cell, value) {
+            cell.metadata[flag_name] = value;
+            if (value) {
+                show_comment_dialog(cell);
+            } else {
+                hide_comment_dialog(cell);
+            }
+        },
+        function (cell) {
+            return false;
+        }
+    );
+
+    IPython.CellToolbar.register_callback(flag_name, cell_flag_init);
+    IPython.CellToolbar.register_preset('Export Comments', [flag_name]);
+    var username = authorization.get_username();
+});
