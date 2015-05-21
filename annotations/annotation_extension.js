@@ -139,6 +139,10 @@ define([
     function set_edit_comment_mode($comment_field) {
         if(is_edited_comment_mode)
             return;
+        var current_user = authorization.get_username();
+        var comment_owner = $comment_field.attr('username');
+        if (current_user != comment_owner)
+            return;
         is_edited_comment_mode = true;
         var ind = $comment_field.attr("index");
         var $previous_comment = $comment_field.find(".comment_text");
