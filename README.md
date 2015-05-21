@@ -1,10 +1,13 @@
+#Notebook Annotation Extension
+
+##Description
+Simple IPython Notebook 3.x annotation extension.
+
+[Demonstration](https://youtu.be/-Eby5Xfxq-8)
+
+
 ## Installation
 
-To add custom content to the notebook server, you need to create an IPython user profile. Do this by running:
-
-```bash
-ipython profile create
-cd $(ipython locate profile)
-```
-In this new directory, you need to make a subdirectory named **static/custom**.
-Copy **my_extension.js** and **custom.js** there.
+1. Copy **annotation** folder to **.ipython/nbextensions/IPython-notebook-extensions-3.x** directory
+2. Go to '/nbextensions/' URL
+3. Press "Activate" or "Deactivate" to activate or deactivate extension

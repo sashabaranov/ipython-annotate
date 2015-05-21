@@ -1,0 +1,7 @@
+Type: IPython Notebook Extension
+Name: Cell annotation extension
+Description: Adds annotation cell toolbar.
+Link: https://fivt.in.ru/stash/projects/REP/repos/rep4/browse/README.md
+Icon: icon.png
+Main: annotation_extension.js
+Compatibility: 3.x 
