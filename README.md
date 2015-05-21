@@ -8,6 +8,8 @@ Simple IPython Notebook 3.x annotation extension.
 
 ## Installation
 
-1. Copy **annotation** folder to **.ipython/nbextensions/IPython-notebook-extensions-3.x** directory
-2. Go to '/nbextensions/' URL
-3. Press "Activate" or "Deactivate" to activate or deactivate extension
+1. There is a graphical interface for activating/deactivating notebook extensions now. You should install it: 
+[config-extension](https://github.com/ipython-contrib/IPython-notebook-extensions/wiki/config-extension)
+2. Then copy **annotation** folder to **.ipython/nbextensions/IPython-notebook-extensions-3.x** directory
+3. Go to '/nbextensions/' URL
+4. Press "Activate" or "Deactivate" to activate or deactivate extension
